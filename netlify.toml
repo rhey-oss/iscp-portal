@@ -1,0 +1,28 @@
+# Netlify deployment for the College Portal.
+# Netlify auto-detects Next.js through its OpenNext adapter; no pinned plugin.
+
+[build]
+  command = "npm run build:netlify"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+# Use serverless functions instead of edge functions to avoid Webpack runtime issues
+[dev]
+  functions = "netlify/functions"
+
+# Defense-in-depth headers on every response (CSP is also set in next.config.ts).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-TypeOptions = "nosniff"
+    Referrer-Policy = "no-referrer"
+
+# Long-cache Next.js static assets; pages and API routes stay dynamic.
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
